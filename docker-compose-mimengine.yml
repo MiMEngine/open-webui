@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  author:
+    build: .
+    container_name: mimengine-author
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.author.rule=Host(`author.hallnet-ai`)"
+      - "traefik.http.services.author.loadbalancer.server.port=8080"
+    networks:
+      - mimengine_network
+
+networks:
+  mimengine_network:
+    external: true
+
