@@ -1,21 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
-
 import { viteStaticCopy } from 'vite-plugin-static-copy';
-
-// /** @type {import('vite').Plugin} */
-// const viteServerConfig = {
-// 	name: 'log-request-middleware',
-// 	configureServer(server) {
-// 		server.middlewares.use((req, res, next) => {
-// 			res.setHeader('Access-Control-Allow-Origin', '*');
-// 			res.setHeader('Access-Control-Allow-Methods', 'GET');
-// 			res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-// 			res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-// 			next();
-// 		});
-// 	}
-// };
 
 export default defineConfig({
 	plugins: [
@@ -24,7 +9,6 @@ export default defineConfig({
 			targets: [
 				{
 					src: 'node_modules/onnxruntime-web/dist/*.jsep.*',
-
 					dest: 'wasm'
 				}
 			]
@@ -39,5 +23,30 @@ export default defineConfig({
 	},
 	worker: {
 		format: 'es'
+	},
+	server: {
+		host: 'author.hallnet-ai', // Bind to domain
+		port: 5173, // Change if needed
+		strictPort: true, // Ensures it fails if the port is unavailable
+		https: false, // Set to true if using SSL locally
+		cors: {
+			origin: 'https://author.hallnet-ai',
+			methods: ['GET', 'POST', 'OPTIONS'],
+			allowedHeaders: ['Content-Type', 'Authorization'],
+			credentials: true
+		},
+		proxy: {
+			'/api': {
+				target: 'http://127.0.0.1:8081', // Backend API (FastAPI)
+				changeOrigin: true,
+				secure: false,
+				ws: true
+			}
+		},
+		hmr: {
+			host: 'author.hallnet-ai',
+			port: 5173,
+			protocol: 'wss' // Use `ws` if not running HTTPS
+		}
 	}
 });
